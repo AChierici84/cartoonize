@@ -30,11 +30,11 @@ Questa applicazione utilizza OpenCV e tecniche di elaborazione delle immagini pe
 
 ---
 
-## ⚡ Come usare
+## Come usare
 
 1. Clona il repository:
     ```bash
-    git clone https://github.com/tuo-username/cartoonizer.git
+    git clone https://github.com/AChierici84/cartoonizer.git
     cd cartoonizer
     ```
 
