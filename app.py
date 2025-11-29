@@ -1,31 +1,32 @@
 import cv2
+import os
 import numpy as np
 import gradio as gr
 from sklearn.cluster import KMeans
 import uvicorn
+import tempfile
 
 
 # -----------------------------
 #   FUNZIONI
 # -----------------------------
 
-def posterize (adjusted_color_image, colors: int):
-  data_adjusted = adjusted_color_image.reshape(-1, 3).astype(np.float32)
-  n_colors_adjusted = colors # Can be adjusted for different levels of posterization
+def posterize (image, colors: int):
+  data = image.reshape(-1, 3).astype(np.float32)
 
-  kmeans_adjusted = KMeans(n_clusters=n_colors_adjusted, random_state=42, n_init='auto')
-  kmeans_adjusted.fit(data_adjusted)
+  kmeans = KMeans(n_clusters=colors, random_state=42, n_init='auto')
+  kmeans.fit(data)
 
-  labels_adjusted = kmeans_adjusted.predict(data_adjusted)
-  centers_adjusted = kmeans_adjusted.cluster_centers_
-  centers_adjusted = np.uint8(centers_adjusted)
-  posterized_adjusted_image = centers_adjusted[labels_adjusted]
-  posterized_adjusted_image = posterized_adjusted_image.reshape(adjusted_color_image.shape)
+  labels = kmeans.predict(data)
 
-  return posterized_adjusted_image
+  centers = np.uint8(kmeans.cluster_centers_)
+  posterized_image = centers[labels]
+  posterized_image = posterized_image.reshape(image.shape)
+
+  return posterized_image
 
 def adjust_image (image, saturation: int, brightness: int):
-  hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+  hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
   h, s, v = cv2.split(hsv_image)
 
   s = cv2.add(s, saturation)  # Increase saturation by adding a constant
@@ -35,7 +36,7 @@ def adjust_image (image, saturation: int, brightness: int):
   v = np.clip(v, 0, 255) # Clip values to 0-255
 
   adjusted_hsv = cv2.merge([h, s, v])
-  adjusted_color_image = cv2.cvtColor(adjusted_hsv, cv2.COLOR_HSV2RGB)
+  adjusted_color_image = cv2.cvtColor(adjusted_hsv, cv2.COLOR_HSV2BGR)
   return adjusted_color_image
 
 
@@ -45,16 +46,9 @@ def cartoonize (image, saturation: int, brightness: int, edge_cut: int, paint_ef
   adjusted_color_image = adjust_image(image, saturation, brightness)
   posterized_image = posterize(adjusted_color_image, colors)
   edges = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, edge_cut)
-  color = cv2.bilateralFilter(posterized_image, paint_effect, 250, 250)
+  color = cv2.bilateralFilter(posterized_image, paint_effect*2+1, 250, 250)
   cartoon = cv2.bitwise_and(color, color, mask=edges)
-  cartoon = cv2.cvtColor(cartoon, cv2.COLOR_BGR2RGB)
   return cartoon
-
-# -----------------------------
-#   FILTRI
-# -----------------------------
-
-
 
 # -----------------------------
 #   FILTRI
@@ -70,7 +64,7 @@ def apply_filters(image, blur, edge_cut, saturation, brightness, paint_effect, c
    
     cartoonized = cartoonize(img,saturation,brightness,edge_cut,paint_effect,blur,colors)
 
-    cartoonized = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    cartoonized = cv2.cvtColor(cartoonized, cv2.COLOR_BGR2RGB)
 
     return cartoonized
 
@@ -101,11 +95,18 @@ with gr.Blocks() as demo:
     )
 
     # Salvataggio file
+    
     def save_image(image):
         if image is None:
             return None
-        cv2.imwrite("cartoonized.jpg", cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-        return "cartoonized.jpg"
+        
+        tmp_path = os.path.join(
+            tempfile.gettempdir(),
+            "cartoonized_image.png"  # fixed name or generate unique
+        )
+        bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(tmp_path, bgr)
+        return tmp_path
 
     save.click(save_image, inputs=output_img, outputs=gr.File(label="File Salvato"))
 
