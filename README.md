@@ -20,7 +20,7 @@ Questa applicazione utilizza OpenCV e tecniche di elaborazione delle immagini pe
 
 ---
 
-## 🚀 Tecnologie utilizzate
+## Tecnologie utilizzate
 
 - Python 3.12
 - [OpenCV](https://opencv.org/) – elaborazione immagini
@@ -67,7 +67,7 @@ Questa applicazione utilizza OpenCV e tecniche di elaborazione delle immagini pe
 
 ---
 
-## 💾 Salvataggio immagini
+## Salvataggio immagini
 
 - Una volta applicati i filtri, puoi **salvare l’immagine cartoonizzata** direttamente tramite l’interfaccia.
 - Le immagini vengono salvate in una cartella temporanea con un suffisso `_cartoonized`.
@@ -76,8 +76,6 @@ Questa applicazione utilizza OpenCV e tecniche di elaborazione delle immagini pe
 
 ## Screenshot
 
-*(Inserisci qui le immagini prima/dopo del cartoonizer)*
-
 | Immagine orgiginale        | Cartoonize!|
 |-------------------------------------------------------|-------------------------------------------------------|
 |![Cane_dalmata](https://github.com/user-attachments/assets/2a272318-20ed-405a-8428-3b672d8ed617)|<img width="960" height="1280" alt="cartoonized_image(2)" src="https://github.com/user-attachments/assets/ba036a9b-0476-459f-bed5-fd510df5e976" />|
@@ -85,7 +83,7 @@ Questa applicazione utilizza OpenCV e tecniche di elaborazione delle immagini pe
 
 ---
 
-## 📝 Note
+## Note
 
 - Alcune immagini con colori particolari potrebbero richiedere **piccole regolazioni dei parametri** per ottenere il miglior risultato.
 - L’applicazione mantiene la conversione tra **RGB e BGR** corretta per evitare problemi di colori invertiti.
